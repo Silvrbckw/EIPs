@@ -1,7 +1,9 @@
 ---
-eip: 6808
+eip: draft_fungible_key_bound_token
 title: Fungible Key Bound Token
-description: An interface for Fungible Key Bound Tokens, also known as a Fungible **KBT**[^1].
+description: >-
+  An interface for Fungible Key Bound Tokens, also known as a Fungible
+  **KBT**[^1].
 author: Mihai Onila (@MihaiORO), Nick Zeman (@NickZCZ), Narcis Cotaie (@NarcisCRO)
 discussions-to: https://ethereum-magicians.org/t/fungible-key-bound-token-kbt/13624
 status: Draft
