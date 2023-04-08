@@ -1,7 +1,9 @@
 ---
-eip: 6809
+eip: draft_non_fungible_key_bound_token
 title: Non-Fungible Key Bound Token
-description: An interface for Non-Fungible Key Bound Tokens, also known as a Non-Fungible **KBT**[^1].
+description: >-
+  An interface for Non-Fungible Key Bound Tokens, also known as a Non-Fungible
+  **KBT**[^1].
 author: Mihai Onila (@MihaiORO), Nick Zeman (@NickZCZ), Narcis Cotaie (@NarcisCRO)
 discussions-to: https://ethereum-magicians.org/t/non-fungible-key-bound-token-kbt/13625
 status: Draft

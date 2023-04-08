@@ -1,3 +1,8 @@
+---
+eip: NaN
+status: Draft
+---
+
 # EIP 6809 implementation
 
 This project is a reference implementation of EIP-6809.
