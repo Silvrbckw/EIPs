@@ -64,18 +64,15 @@ class Optional(MonoSubtreeView):
     def value_byte_length(self) -> int:
         if self.length() == 0:
             return 0
-        else:
-            elem_cls = self.__class__.element_cls()
-            if elem_cls.is_fixed_byte_length():
-                return elem_cls.type_byte_length()
-            else:
-                return cast(View, el).value_byte_length()
+        elem_cls = self.__class__.element_cls()
+        return (
+            elem_cls.type_byte_length()
+            if elem_cls.is_fixed_byte_length()
+            else cast(View, el).value_byte_length()
+        )
 
     def get(self) -> PyOptional[View]:
-        if self.length() == 0:
-            return None
-        else:
-            return super().get(0)
+        return None if self.length() == 0 else super().get(0)
 
     def set(self, v: PyOptional[View]) -> None:
         if v is None:
@@ -91,10 +88,7 @@ class Optional(MonoSubtreeView):
                     target >>= 1
                 summary_fn = next_backing.summarize_into(target)
                 next_backing = summary_fn()
-            set_length = next_backing.rebind_right
             new_length = uint256(i).get_backing()
-            next_backing = set_length(new_length)
-            self.set_backing(next_backing)
         else:
             if self.length() == 1:
                 super().set(0, v)
@@ -106,10 +100,11 @@ class Optional(MonoSubtreeView):
             target = to_gindex(i, self.__class__.tree_depth())
             set_last = self.get_backing().setter(target, expand=True)
             next_backing = set_last(v.get_backing())
-            set_length = next_backing.rebind_right
             new_length = uint256(i + 1).get_backing()
-            next_backing = set_length(new_length)
-            self.set_backing(next_backing)
+
+        set_length = next_backing.rebind_right
+        next_backing = set_length(new_length)
+        self.set_backing(next_backing)
 
     def __repr__(self):
         value = self.get()
@@ -147,10 +142,7 @@ class Optional(MonoSubtreeView):
 
     def serialize(self, stream: BinaryIO) -> int:
         v = self.get()
-        if v is None:
-            return 0
-        else:
-            return v.serialize(stream)
+        return 0 if v is None else v.serialize(stream)
 
     @classmethod
     def navigate_type(cls, key: Any) -> Type[View]:
@@ -181,5 +173,4 @@ class Optional(MonoSubtreeView):
     @classmethod
     def max_byte_length(cls) -> int:
         elem_cls = cls.element_cls()
-        bytes_per_elem = elem_cls.max_byte_length()
-        return bytes_per_elem
+        return elem_cls.max_byte_length()

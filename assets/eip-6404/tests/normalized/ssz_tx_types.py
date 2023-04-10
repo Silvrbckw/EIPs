@@ -45,7 +45,7 @@ def ecdsa_pack_signature(y_parity: bool, r: uint256, s: uint256) -> TransactionS
 
 def ecdsa_unpack_signature(signature: TransactionSignature) -> Tuple[boolean, uint256, uint256]:
     y_parity = signature[64] != 0
-    r = uint256.from_bytes(signature[0:32], 'big')
+    r = uint256.from_bytes(signature[:32], 'big')
     s = uint256.from_bytes(signature[32:64], 'big')
     return (y_parity, r, s)
 
@@ -59,7 +59,9 @@ def ecdsa_validate_signature(signature: TransactionSignature):
 
 def ecdsa_recover_tx_from(signature: TransactionSignature, sig_hash: Hash32) -> ExecutionAddress:
     ecdsa = ECDSA()
-    recover_sig = ecdsa.ecdsa_recoverable_deserialize(signature[0:64], signature[64])
+    recover_sig = ecdsa.ecdsa_recoverable_deserialize(
+        signature[:64], signature[64]
+    )
     public_key = PublicKey(ecdsa.ecdsa_recover(sig_hash, recover_sig, raw=True))
     uncompressed = public_key.serialize(compressed=False)
     return ExecutionAddress(keccak(uncompressed)[12:32])
