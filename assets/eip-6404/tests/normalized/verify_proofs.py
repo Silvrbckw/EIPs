@@ -160,13 +160,13 @@ if __name__ == '__main__':
             amount_proofs[tx_index], cfg, transactions_root,
             expected_tx_to, expected_tx_value_min,
         )
-        print(f'OK')
+        print('OK')
 
     print()
+    expected_tx_value_min = 1_000_000_000
     for tx_index in range(len(sender_proofs)):
         print(f'{tx_index} - SenderProof')
         expected_tx_to = ExecutionAddress(bytes.fromhex('d8dA6BF26964aF9D7eEd9e03E53415D37aA96045'))
-        expected_tx_value_min = 1_000_000_000
         tx_from = verify_sender_proof(
             sender_proofs[tx_index], cfg, transactions_root,
             expected_tx_to, expected_tx_value_min,

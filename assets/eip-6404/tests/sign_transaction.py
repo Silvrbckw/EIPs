@@ -24,5 +24,5 @@ if __name__ == '__main__':
         sig, y_parity = privkey.ecdsa_recoverable_serialize(raw_sig)
         print(f'{tx_index}')
         print(f'y_parity = {y_parity}')
-        print(f'r = 0x{sig[0:32].hex()}')
+        print(f'r = 0x{sig[:32].hex()}')
         print(f's = 0x{sig[32:64].hex()}')
