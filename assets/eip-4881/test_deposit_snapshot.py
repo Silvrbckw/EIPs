@@ -14,7 +14,7 @@ class DepositTestCase:
     snapshot: DepositTreeSnapshot
 
 def get_hex(some_bytes) -> str:
-    return "0x{}".format(some_bytes.hex())
+    return f"0x{some_bytes.hex()}"
 
 def get_bytes(hexstr) -> bytes:
     return bytes.fromhex(hexstr.replace("0x",""))
@@ -36,9 +36,10 @@ def read_test_cases(filename):
                     int(test_case['eth1_data']['deposit_count']),
                     get_bytes(test_case['eth1_data']['block_hash'])
                 )
-                finalized = []
-                for block_hash in test_case['snapshot']['finalized']:
-                    finalized.append(get_bytes(block_hash))
+                finalized = [
+                    get_bytes(block_hash)
+                    for block_hash in test_case['snapshot']['finalized']
+                ]
                 snapshot = DepositTreeSnapshot(
                     finalized,
                     get_bytes(test_case['snapshot']['deposit_root']),
@@ -62,10 +63,7 @@ def merkle_root_from_branch(leaf, branch, index) -> Hash32:
     root = leaf
     for (i, leaf) in enumerate(branch):
         ith_bit = (index >> i) & 0x1
-        if ith_bit == 1:
-            root = sha256(leaf + root)
-        else:
-            root = sha256(root + leaf)
+        root = sha256(leaf + root) if ith_bit == 1 else sha256(root + leaf)
     return root
 
 def check_proof(tree, index):

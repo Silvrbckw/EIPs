@@ -98,11 +98,9 @@ if __name__ == '__main__':
 
     print('transactions_root')
     print(f'0x{transactions_root.hex()}')
-    file = open(os_path.join(dir, f'transactions_root.ssz'), 'wb')
-    file.write(transactions_root)
-    file.close()
-
-    file = open(os_path.join(dir, f'nil_0.ssz'), 'wb')
+    with open(os_path.join(dir, 'transactions_root.ssz'), 'wb') as file:
+        file.write(transactions_root)
+    file = open(os_path.join(dir, 'nil_0.ssz'), 'wb')
     file.close()
 
     for tx_index in range(len(transactions)):
@@ -111,27 +109,20 @@ if __name__ == '__main__':
         encoded = transaction_proofs[tx_index].encode_bytes()
         print(f'{tx_index} - TransactionProof - {len(encoded)} bytes (Snappy: {len(compress(encoded))})')
         print(encoded.hex())
-        file = open(os_path.join(dir, f'transaction_{tx_index}.ssz'), 'wb')
-        file.write(encoded)
-        file.close()
-
+        with open(os_path.join(dir, f'transaction_{tx_index}.ssz'), 'wb') as file:
+            file.write(encoded)
         encoded = amount_proofs[tx_index].encode_bytes()
         print(f'{tx_index} - AmountProof - {len(encoded)} bytes (Snappy: {len(compress(encoded))})')
         print(encoded.hex())
-        file = open(os_path.join(dir, f'amount_{tx_index}.ssz'), 'wb')
-        file.write(encoded)
-        file.close()
-
+        with open(os_path.join(dir, f'amount_{tx_index}.ssz'), 'wb') as file:
+            file.write(encoded)
         encoded = sender_proofs[tx_index].encode_bytes()
         print(f'{tx_index} - SenderProof - {len(encoded)} bytes (Snappy: {len(compress(encoded))})')
         print(encoded.hex())
-        file = open(os_path.join(dir, f'sender_{tx_index}.ssz'), 'wb')
-        file.write(encoded)
-        file.close()
-
+        with open(os_path.join(dir, f'sender_{tx_index}.ssz'), 'wb') as file:
+            file.write(encoded)
         encoded = info_proofs[tx_index].encode_bytes()
         print(f'{tx_index} - InfoProof - {len(encoded)} bytes (Snappy: {len(compress(encoded))})')
         print(encoded.hex())
-        file = open(os_path.join(dir, f'info_{tx_index}.ssz'), 'wb')
-        file.write(encoded)
-        file.close()
+        with open(os_path.join(dir, f'info_{tx_index}.ssz'), 'wb') as file:
+            file.write(encoded)

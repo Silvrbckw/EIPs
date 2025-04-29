@@ -17,7 +17,7 @@ class DepositTreeSnapshot:
         size = self.deposit_count
         index = len(self.finalized)
         root = zerohashes[0]
-        for level in range(0, DEPOSIT_CONTRACT_DEPTH):
+        for level in range(DEPOSIT_CONTRACT_DEPTH):
             if (size & 1) == 1:
                 index -= 1
                 root = sha256(self.finalized[index] + root)
@@ -25,11 +25,14 @@ class DepositTreeSnapshot:
                 root = sha256(root + zerohashes[level])
             size >>= 1
         return sha256(root + to_le_bytes(self.deposit_count))
-    def from_tree_parts(finalized: List[Hash32],
-                        deposit_count: uint64,
-                        execution_block: Tuple[Hash32, uint64]) -> DepositTreeSnapshot:
+    def from_tree_parts(self, deposit_count: uint64, execution_block: Tuple[Hash32, uint64]) -> DepositTreeSnapshot:
         snapshot = DepositTreeSnapshot(
-            finalized, zerohashes[0], deposit_count, execution_block[0], execution_block[1])
+            self,
+            zerohashes[0],
+            deposit_count,
+            execution_block[0],
+            execution_block[1],
+        )
         snapshot.deposit_root = snapshot.calculate_root()
         return snapshot
 
@@ -47,13 +50,17 @@ class DepositTree:
         deposit_count = self.tree.get_finalized(finalized)
         return DepositTreeSnapshot.from_tree_parts(
             finalized, deposit_count, self.finalized_execution_block)
-    def from_snapshot(snapshot: DepositTreeSnapshot) -> DepositTree:
+    def from_snapshot(self) -> DepositTree:
         # decent validation check on the snapshot
-        assert(snapshot.deposit_root == snapshot.calculate_root())
-        finalized_execution_block = (snapshot.execution_block_hash, snapshot.execution_block_height)
+        assert self.deposit_root == self.calculate_root()
+        finalized_execution_block = (
+            self.execution_block_hash,
+            self.execution_block_height,
+        )
         tree = MerkleTree.from_snapshot_parts(
-            snapshot.finalized, snapshot.deposit_count, DEPOSIT_CONTRACT_DEPTH)
-        return DepositTree(tree, snapshot.deposit_count, finalized_execution_block)
+            self.finalized, self.deposit_count, DEPOSIT_CONTRACT_DEPTH
+        )
+        return DepositTree(tree, self.deposit_count, finalized_execution_block)
     def finalize(self, eth1_data: Eth1Data, execution_block_height: uint64):
         self.finalized_execution_block = (eth1_data.block_hash, execution_block_height)
         self.tree.finalize(eth1_data.deposit_count, DEPOSIT_CONTRACT_DEPTH)
@@ -88,30 +95,32 @@ class MerkleTree():
         # returns the number of finalized deposits in the tree
         # while populating result with the finalized hashes
         pass
-    def create(leaves: List[Hash32], depth: uint) -> MerkleTree:
-        if not(leaves):
+    def create(self, depth: uint) -> MerkleTree:
+        if not self:
             return Zero(depth)
         if not(depth):
-            return Leaf(leaves[0])
-        split = min(2**(depth - 1), len(leaves))
-        left = MerkleTree.create(leaves[0:split], depth - 1)
-        right = MerkleTree.create(leaves[split:], depth - 1)
+            return Leaf(self[0])
+        split = min(2**(depth - 1), len(self))
+        left = MerkleTree.create(self[:split], depth - 1)
+        right = MerkleTree.create(self[split:], depth - 1)
         return Node(left, right)
-    def from_snapshot_parts(finalized: List[Hash32], deposits: uint, level: uint) -> MerkleTree:
-        if not(finalized) or not(deposits):
+    def from_snapshot_parts(self, deposits: uint, level: uint) -> MerkleTree:
+        if not self or not (deposits):
             # empty tree
             return Zero(level)
         if deposits == 2**level:
-            return Finalized(deposits, finalized[0])
+            return Finalized(deposits, self[0])
         left_subtree = 2**(level - 1)
         if deposits <= left_subtree:
-            left = MerkleTree.from_snapshot_parts(finalized, deposits, level - 1)
+            left = MerkleTree.from_snapshot_parts(self, deposits, level - 1)
             right = Zero(level - 1)
-            return Node(left, right)
         else:
-            left = Finalized(left_subtree, finalized[0])
-            right = MerkleTree.from_snapshot_parts(finalized[1:], deposits - left_subtree, level - 1)
-            return Node(left, right)
+            left = Finalized(left_subtree, self[0])
+            right = MerkleTree.from_snapshot_parts(
+                self[1:], deposits - left_subtree, level - 1
+            )
+
+        return Node(left, right)
     def generate_proof(self, index: uint, depth: uint) -> Tuple[Hash32, List[Hash32]]:
         proof = []
         node = self
